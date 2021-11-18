@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+*.ipch
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.sqlite
+*.tlog
+*.recipe
+*.log
+*.iobj
+*.ipdb
+/NeutrinoAgent/Release/NeutrinoAgent.vcxproj.FileListAbsolute.txt
+/Release/NeutrinoInjector.vcxproj.FileListAbsolute.txt
