@@ -70,12 +70,6 @@ LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList, LPDWORD lpThreadId)
 		if (only_once)
 		{
 			only_once = false;
-			FILE* hFile = fopen("C:\\Users\\hadew\\Desktop\\Neutrino\\logger.txt", "a+");
-			if (hFile)
-			{
-				fprintf(hFile, "Path: %s\n", procPath);
-				fclose(hFile);
-			}
 			ParseAndLoad(hProcess);
 			#pragma warning(suppress: 26812)
 			MH_DisableHook(MH_ALL_HOOKS);
