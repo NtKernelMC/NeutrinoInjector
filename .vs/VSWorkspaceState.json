@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\NeutrinoAgent"
   ],
-  "SelectedNode": "\\NeutrinoInjector.sln",
+  "SelectedNode": "\\NeutrinoAgent\\dllmain.cpp",
   "PreviewInSolutionExplorer": false
 }

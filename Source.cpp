@@ -22,7 +22,7 @@ int main()
 		if (prov_path.empty())
 		{
 			printf("[ERROR] Can`t find installed game!\n");
-			return 0;
+			Sleep(3000); ExitProcess(0);
 		}
 		std::string tmpDir = prov_path;
 		prov_path += "\\MTA\\Multi Theft Auto.exe"; delete reg;

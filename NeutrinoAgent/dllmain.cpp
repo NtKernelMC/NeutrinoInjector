@@ -51,39 +51,34 @@ void ParseAndLoad(HANDLE hProc)
 		delete reg;
 	}
 }
-typedef HANDLE (__stdcall *ptrCreateRemoteThreadEx)(HANDLE hProcess, LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize,
-LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, 
-LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList, LPDWORD lpThreadId);
-ptrCreateRemoteThreadEx callCreateRemoteThreadEx = nullptr;
+typedef BOOL (__stdcall *ptrCreateProcessW)(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
+LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, 
+LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
+ptrCreateProcessW callCreateProcessW = nullptr;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-HANDLE __stdcall hookedCreateRemoteThreadEx(HANDLE hProcess, LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize,
-LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags,
-LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList, LPDWORD lpThreadId)
+BOOL __stdcall hookedCreateProcessW(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
+LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment,
+LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
 {
-	HANDLE hndl = callCreateRemoteThreadEx(hProcess, lpThreadAttributes, dwStackSize,
-	lpStartAddress, lpParameter, dwCreationFlags, lpAttributeList, lpThreadId);
-	char procPath[256]; memset(procPath, 0, sizeof(procPath));
-	GetProcessImageFileNameA(hProcess, procPath, sizeof(procPath));
-	if (strstr(procPath, "gta_sa") != nullptr || strstr(procPath, "proxy_sa") != nullptr)
+	dwCreationFlags = CREATE_SUSPENDED;
+	BOOL hndl = callCreateProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes,
+	lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, 
+	lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	if (wcsstr(lpApplicationName, L"gta_sa") != nullptr || wcsstr(lpApplicationName, L"proxy_sa") != nullptr)
 	{
-		static bool only_once = true;
-		if (only_once)
-		{
-			only_once = false;
-			ParseAndLoad(hProcess);
-			#pragma warning(suppress: 26812)
-			MH_DisableHook(MH_ALL_HOOKS);
-		}
+		ParseAndLoad(lpProcessInformation->hProcess);
+		#pragma warning(suppress: 26812)
+		MH_DisableHook(MH_ALL_HOOKS);
 	}
 	return hndl;
 }
 void LoadHacks()
 {
 	#pragma warning(suppress: 6387)
-	callCreateRemoteThreadEx = (ptrCreateRemoteThreadEx)GetProcAddress(GetModuleHandleA("kernelbase.dll"), "CreateRemoteThreadEx");
+	callCreateProcessW = (ptrCreateProcessW)GetProcAddress(GetModuleHandleA("kernelbase.dll"), "CreateProcessW");
 	#pragma warning(suppress: 26812)
 	MH_Initialize(); 
-	MH_CreateHook(callCreateRemoteThreadEx, &hookedCreateRemoteThreadEx, reinterpret_cast<LPVOID*>(&callCreateRemoteThreadEx));
+	MH_CreateHook(callCreateProcessW, &hookedCreateProcessW, reinterpret_cast<LPVOID*>(&callCreateProcessW));
 	MH_EnableHook(MH_ALL_HOOKS);
 	CEasyRegistry* reg = new CEasyRegistry(HKEY_CURRENT_USER, "Software\\Neutrino", false);
 	if (reg)
