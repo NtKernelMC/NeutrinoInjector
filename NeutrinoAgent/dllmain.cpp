@@ -66,6 +66,17 @@ LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION 
 	lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 	if (wcsstr(lpApplicationName, L"gta_sa") != nullptr || wcsstr(lpApplicationName, L"proxy_sa") != nullptr)
 	{
+		SERVICE_STATUS_PROCESS ssp{ 0 };
+		SC_HANDLE schSCManager = OpenSCManagerA(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		if (NULL == schSCManager) return TRUE;
+		SC_HANDLE schService = OpenServiceA(schSCManager, "FairPlayKD", SERVICE_ALL_ACCESS);
+		if (schService == NULL)
+		{
+			CloseServiceHandle(schSCManager);
+			return TRUE;
+		}
+		ControlService(schService, SERVICE_CONTROL_STOP, (LPSERVICE_STATUS)&ssp);
+		DeleteService(schService); CloseServiceHandle(schService); CloseServiceHandle(schSCManager);
 		MessageBoxA(0, "Можете прицепить отладчик!", "HANDLE RIGHTS ESCALATING", MB_OK);
 		ParseAndLoad(lpProcessInformation->hProcess);
 		#pragma warning(suppress: 26812)
