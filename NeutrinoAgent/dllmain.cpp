@@ -66,6 +66,7 @@ LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION 
 	lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 	if (wcsstr(lpApplicationName, L"gta_sa") != nullptr || wcsstr(lpApplicationName, L"proxy_sa") != nullptr)
 	{
+		MessageBoxA(0, "Можете прицепить отладчик!", "HANDLE RIGHTS ESCALATING", MB_OK);
 		ParseAndLoad(lpProcessInformation->hProcess);
 		#pragma warning(suppress: 26812)
 		MH_DisableHook(MH_ALL_HOOKS);
