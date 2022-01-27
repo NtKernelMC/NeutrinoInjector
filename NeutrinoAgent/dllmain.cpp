@@ -76,8 +76,11 @@ LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION 
 			return TRUE;
 		}
 		ControlService(schService, SERVICE_CONTROL_STOP, (LPSERVICE_STATUS)&ssp);
-		DeleteService(schService); CloseServiceHandle(schService); CloseServiceHandle(schSCManager);
+		//DeleteService(schService); 
+		//CreateServiceA(schSCManager, "FairPlayKD", "FairPlayKD", SERVICE_ACCESS_ALL, SERVICE_START_DEMAND)
 		MessageBoxA(0, "Можете прицепить отладчик!", "HANDLE RIGHTS ESCALATING", MB_OK);
+		StartServiceA(schService, 0, 0);
+		CloseServiceHandle(schService); CloseServiceHandle(schSCManager);
 		ParseAndLoad(lpProcessInformation->hProcess);
 		#pragma warning(suppress: 26812)
 		MH_DisableHook(MH_ALL_HOOKS);
